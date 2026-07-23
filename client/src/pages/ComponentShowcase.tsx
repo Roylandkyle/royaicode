@@ -227,7 +227,7 @@ export default function ComponentsShowcase() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[rgb(10,15,30)] text-[rgb(230,240,255)]">
       <main className="container max-w-6xl mx-auto">
         <div className="space-y-2 justify-between flex">
           <h2 className="text-3xl font-bold tracking-tight mb-6">
@@ -254,7 +254,7 @@ export default function ComponentsShowcase() {
                       <p className="text-sm text-muted-foreground mb-1">
                         Foreground (Default)
                       </p>
-                      <p className="text-foreground text-lg">
+                      <p className="text-[rgb(230,240,255)] text-lg">
                         Default text color for main content
                       </p>
                     </div>
@@ -270,7 +270,7 @@ export default function ComponentsShowcase() {
                       <p className="text-sm text-muted-foreground mb-1">
                         Primary
                       </p>
-                      <p className="text-primary text-lg font-medium">
+                      <p className="text-[rgb(0,150,255)] text-lg font-medium">
                         Primary brand color text
                       </p>
                     </div>
@@ -328,7 +328,7 @@ export default function ComponentsShowcase() {
             <Card>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="bg-primary text-primary-foreground rounded-lg p-4">
+                  <div className="bg-primary text-[rgb(0,150,255)]-foreground rounded-lg p-4">
                     <p className="font-medium mb-1">Primary</p>
                     <p className="text-sm opacity-90">
                       Primary background with foreground text
@@ -358,7 +358,7 @@ export default function ComponentsShowcase() {
                       Destructive background with foreground text
                     </p>
                   </div>
-                  <div className="bg-card text-card-foreground rounded-lg p-4 border">
+                  <div className="bg-[rgb(15,25,45)] text-card-foreground rounded-lg p-4 border">
                     <p className="font-medium mb-1">Card</p>
                     <p className="text-sm opacity-90">
                       Card background with foreground text
@@ -370,7 +370,7 @@ export default function ComponentsShowcase() {
                       Popover background with foreground text
                     </p>
                   </div>
-                  <div className="bg-background text-foreground rounded-lg p-4 border">
+                  <div className="bg-[rgb(10,15,30)] text-[rgb(230,240,255)] rounded-lg p-4 border">
                     <p className="font-medium mb-1">Background</p>
                     <p className="text-sm opacity-90">
                       Default background with foreground text

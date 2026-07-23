@@ -24,7 +24,7 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen p-8 bg-background">
+        <div className="flex items-center justify-center min-h-screen p-8 bg-[rgb(10,15,30)]">
           <div className="flex flex-col items-center w-full max-w-2xl p-8">
             <AlertTriangle
               size={48}
@@ -43,7 +43,7 @@ class ErrorBoundary extends Component<Props, State> {
               onClick={() => window.location.reload()}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg",
-                "bg-primary text-primary-foreground",
+                "bg-primary text-[rgb(0,150,255)]-foreground",
                 "hover:opacity-90 cursor-pointer"
               )}
             >

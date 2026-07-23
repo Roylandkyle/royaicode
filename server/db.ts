@@ -1,11 +1,19 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import {
+  InsertUser,
+  users,
+  growthHistory,
+  protocols,
+  memorySnapshots,
+  systemMetrics,
+  capabilities,
+  growthEvents,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -56,8 +64,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -84,9 +92,183 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Growth History queries
+export async function getGrowthHistory(limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(growthHistory)
+    .orderBy(desc(growthHistory.createdAt))
+    .limit(limit);
+}
+
+export async function addGrowthEntry(entry: typeof growthHistory.$inferInsert) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.insert(growthHistory).values(entry);
+  return result;
+}
+
+export async function updateGrowthEntry(
+  id: number,
+  updates: Partial<typeof growthHistory.$inferInsert>
+) {
+  const db = await getDb();
+  if (!db) return null;
+
+  return db.update(growthHistory).set(updates).where(eq(growthHistory.id, id));
+}
+
+// Protocol queries
+export async function getProtocols(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(protocols)
+    .where(eq(protocols.userId, userId))
+    .orderBy(desc(protocols.createdAt));
+}
+
+export async function createProtocol(protocol: typeof protocols.$inferInsert) {
+  const db = await getDb();
+  if (!db) return null;
+
+  return db.insert(protocols).values(protocol);
+}
+
+export async function updateProtocol(
+  id: number,
+  updates: Partial<typeof protocols.$inferInsert>
+) {
+  const db = await getDb();
+  if (!db) return null;
+
+  return db.update(protocols).set(updates).where(eq(protocols.id, id));
+}
+
+export async function deleteProtocol(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  return db.delete(protocols).where(eq(protocols.id, id));
+}
+
+// Memory queries
+export async function getMemory(key?: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  if (key) {
+    return db
+      .select()
+      .from(memorySnapshots)
+      .where(eq(memorySnapshots.key, key));
+  }
+
+  return db.select().from(memorySnapshots);
+}
+
+export async function setMemory(key: string, value: string, dataType = "string") {
+  const db = await getDb();
+  if (!db) return null;
+
+  const existing = await db
+    .select()
+    .from(memorySnapshots)
+    .where(eq(memorySnapshots.key, key));
+
+  if (existing.length > 0) {
+    return db
+      .update(memorySnapshots)
+      .set({ value, dataType })
+      .where(eq(memorySnapshots.key, key));
+  }
+
+  return db.insert(memorySnapshots).values({ key, value, dataType });
+}
+
+export async function deleteMemory(key: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  return db.delete(memorySnapshots).where(eq(memorySnapshots.key, key));
+}
+
+// Capability queries
+export async function getCapabilities() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(capabilities).orderBy(capabilities.name);
+}
+
+export async function addCapability(capability: typeof capabilities.$inferInsert) {
+  const db = await getDb();
+  if (!db) return null;
+
+  return db.insert(capabilities).values(capability);
+}
+
+export async function updateCapabilityStatus(name: string, status: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  return db
+    .update(capabilities)
+    .set({ status: status as any, lastUsed: new Date() })
+    .where(eq(capabilities.name, name));
+}
+
+// Growth Events queries
+export async function addGrowthEvent(event: typeof growthEvents.$inferInsert) {
+  const db = await getDb();
+  if (!db) return null;
+
+  return db.insert(growthEvents).values(event);
+}
+
+export async function getGrowthEvents(growthId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(growthEvents)
+    .where(eq(growthEvents.growthId, growthId))
+    .orderBy(growthEvents.timestamp);
+}
+
+// System Metrics queries
+export async function getSystemMetrics() {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.select().from(systemMetrics).orderBy(desc(systemMetrics.lastUpdate)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateSystemMetrics(metrics: typeof systemMetrics.$inferInsert) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const existing = await getSystemMetrics();
+  if (existing) {
+    return db.update(systemMetrics).set(metrics).where(eq(systemMetrics.id, existing.id));
+  }
+
+  return db.insert(systemMetrics).values(metrics);
+}
