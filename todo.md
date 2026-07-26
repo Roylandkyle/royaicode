@@ -86,3 +86,34 @@
 - [ ] Error handling and messages
 - [ ] Accessibility review
 - [ ] Performance optimization
+
+
+## Phase 1: Jarvic Backend Integration (NEW)
+- [ ] Connect Roy dashboard to Jarvic Python backend
+- [ ] Implement goal submission to growth engine
+- [ ] Stream growth events from backend
+- [ ] Handle growth cycle lifecycle
+
+## Phase 2: Web Search & Research (NEW)
+- [ ] Integrate web search API (SerpAPI or similar)
+- [ ] Implement document fetching and parsing
+- [ ] Add research panel to dashboard
+- [ ] Create research history tracking
+
+## Phase 3: Data Analysis & Code Generation (NEW)
+- [ ] Implement LLM-powered code generation
+- [ ] Add data analysis capabilities
+- [ ] Create feature proposal system
+- [ ] Implement dependency detection
+
+## Phase 4: Self-Testing & Validation (NEW)
+- [ ] Create automated test generation
+- [ ] Implement code validation
+- [ ] Add error handling and recovery
+- [ ] Create feedback loop for learning
+
+## Phase 5: End-to-End Testing (NEW)
+- [ ] Test autonomous research workflow
+- [ ] Verify growth cycle completion
+- [ ] Test multi-goal protocols
+- [ ] Push to GitHub repository

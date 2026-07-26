@@ -5,6 +5,9 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
+import { autonomousGrowth } from "./autonomousGrowth";
+import { researchEngine } from "./researchEngine";
+import { codeGenerator } from "./codeGenerator";
 
 export const appRouter = router({
   system: systemRouter,
@@ -262,6 +265,82 @@ export const appRouter = router({
           memorySize: input.memorySize,
           uptime: input.uptime,
         });
+      }),
+  }),
+
+  // Autonomous Growth procedures
+  autonomousGrowth: router({
+    startCycle: protectedProcedure
+      .input(z.object({ goal: z.string() }))
+      .mutation(async ({ input }) => {
+        return autonomousGrowth.startGrowthCycle(input.goal);
+      }),
+
+    getCycleStatus: publicProcedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ input }) => {
+        return autonomousGrowth.getCycleStatus(input.id);
+      }),
+
+    getAllCycles: publicProcedure.query(async () => {
+      return autonomousGrowth.getAllCycles();
+    }),
+
+    getHistory: publicProcedure.query(async () => {
+      return autonomousGrowth.getHistory();
+    }),
+  }),
+
+  // Research procedures
+  research: router({
+    search: protectedProcedure
+      .input(z.object({ query: z.string() }))
+      .mutation(async ({ input }) => {
+        return researchEngine.search(input.query);
+      }),
+
+    getHistory: publicProcedure.query(async () => {
+      return researchEngine.getHistory();
+    }),
+
+    clearHistory: protectedProcedure.mutation(async () => {
+      researchEngine.clearHistory();
+      return { success: true };
+    }),
+  }),
+
+  // Code Generation procedures
+  codeGen: router({
+    generateFeature: protectedProcedure
+      .input(
+        z.object({
+          goal: z.string(),
+          context: z.string().optional(),
+          constraints: z.array(z.string()).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return codeGenerator.generateFeature(input);
+      }),
+
+    getProposals: publicProcedure.query(async () => {
+      return codeGenerator.getProposals();
+    }),
+
+    getHistory: publicProcedure.query(async () => {
+      return codeGenerator.getHistory();
+    }),
+
+    approveProposal: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        return codeGenerator.approveProposal(input.id);
+      }),
+
+    markImplemented: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        return codeGenerator.markImplemented(input.id);
       }),
   }),
 });
